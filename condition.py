@@ -87,7 +87,7 @@ def main():
         time_scale=args.timescale,
         loss_type=args.diff_loss_type,  #l1
         spec_min=[], 
-        spec_max=[],  #传进来[]，不知道是啥
+        spec_max=[], 
     )
     diffusion_model=diffusion_model.to(device)
 
@@ -121,7 +121,7 @@ def main():
 
             #得到con
             for listi in range(args.datai):
-                prof0,prosp,promidi=get_pro(listi+1)
+#                 prof0,prosp,promidi=get_pro(listi+1)
 
                 for listj in range(args.dataj):
 
@@ -208,81 +208,81 @@ def main():
                         loss_d["pitch"]=loss_pitch.item()
                         logging.info("*****业余歌曲损失%s*****",loss_d)
 
-                #专业的歌曲的音高也要进行训练
-                #专业的歌手的歌曲
-                prosp_trans=prosp.reshape(1,prosp.shape[0],prosp.shape[1])
-                promidi_trans=promidi.reshape(1,promidi.shape[0],1)
-                prof0_trans=prof0.reshape(1,prof0.shape[0])
+#                 #专业的歌曲的音高也可以进行训练
+#                 #专业的歌手的歌曲
+#                 prosp_trans=prosp.reshape(1,prosp.shape[0],prosp.shape[1])
+#                 promidi_trans=promidi.reshape(1,promidi.shape[0],1)
+#                 prof0_trans=prof0.reshape(1,prof0.shape[0])
 
-                #将其放到gpu上
+#                 #将其放到gpu上
 
-                prof0_trans=torch.Tensor(prof0_trans)
-                prosp_trans=torch.Tensor(prosp_trans)
-                # promidi_trans=torch.from_numpy(promidi_trans)
+#                 prof0_trans=torch.Tensor(prof0_trans)
+#                 prosp_trans=torch.Tensor(prosp_trans)
+#                 # promidi_trans=torch.from_numpy(promidi_trans)
 
-                prof0_trans=prof0_trans.float().to(device)
-                prosp_trans=prosp_trans.float().to(device)
-                promidi_trans=promidi_trans.float().to(device)
+#                 prof0_trans=prof0_trans.float().to(device)
+#                 prosp_trans=prosp_trans.float().to(device)
+#                 promidi_trans=promidi_trans.float().to(device)
 
-                pref0=pitch_model(prosp_trans,promidi_trans)
-                loss_pitch=loss_f(pref0,prof0_trans)
+#                 pref0=pitch_model(prosp_trans,promidi_trans)
+#                 loss_pitch=loss_f(pref0,prof0_trans)
 
-                #进行转化
-                addlen=args.pitch_vec_maxlen-prof0.shape[0]
-                f0=pref0.cpu()
-                f0=f0[0,:]
-                f0=f0.tolist()
-                for addi in range(addlen):
-                    f0.append(0)                   
-                f0=np.array(f0)
-                cond=f0.reshape(1,80,-1)
-                cond=torch.Tensor(cond).float().to(device)
+#                 #进行转化
+#                 addlen=args.pitch_vec_maxlen-prof0.shape[0]
+#                 f0=pref0.cpu()
+#                 f0=f0[0,:]
+#                 f0=f0.tolist()
+#                 for addi in range(addlen):
+#                     f0.append(0)                   
+#                 f0=np.array(f0)
+#                 cond=f0.reshape(1,80,-1)
+#                 cond=torch.Tensor(cond).float().to(device)
 
-                #构造模型t的输入
-                t = torch.randint(0, args.timesteps + 1, (args.batch_size,), device=device).long()  #这里可以保证每次时间t
-                # print("t.shape,t",t.shape,t)
-                # cond=torch.rand(size=(args.batch_size,mel.shape[0],mel.shape[1])).to(device)
-                # print("con",cond.shape)
+#                 #构造模型t的输入
+#                 t = torch.randint(0, args.timesteps + 1, (args.batch_size,), device=device).long()  #这里可以保证每次时间t
+#                 # print("t.shape,t",t.shape,t)
+#                 # cond=torch.rand(size=(args.batch_size,mel.shape[0],mel.shape[1])).to(device)
+#                 # print("con",cond.shape)
 
 
-                ji=get_melpropath(listi+1)
-                mel , _= get_spectrograms(ji)
-                mel=torch.from_numpy(mel)
-                mel=mel.to(device)
-                # print("mel频谱的shape:",mel.shape)
-                # logging.info('mel频谱的shape:%s',mel.shape)
-                input=mel.reshape(args.batch_size,1,mel.shape[0],mel.shape[1])  #[B,1,80,T]
-                input=input.to(device)
-                diffusionz=mel.reshape(args.batch_size,mel.shape[1],mel.shape[0]) #[B,T_s,80]
+#                 ji=get_melpropath(listi+1)
+#                 mel , _= get_spectrograms(ji)
+#                 mel=torch.from_numpy(mel)
+#                 mel=mel.to(device)
+#                 # print("mel频谱的shape:",mel.shape)
+#                 # logging.info('mel频谱的shape:%s',mel.shape)
+#                 input=mel.reshape(args.batch_size,1,mel.shape[0],mel.shape[1])  #[B,1,80,T]
+#                 input=input.to(device)
+#                 diffusionz=mel.reshape(args.batch_size,mel.shape[1],mel.shape[0]) #[B,T_s,80]
 
-                # print("diffusionz",diffusionz.shape)
-                # Diffusion
-                x_t = diffusion_model.diffuse_fn(diffusionz, t)      #[B,1,80,T]   # [B, T_s, 80]
+#                 # print("diffusionz",diffusionz.shape)
+#                 # Diffusion
+#                 x_t = diffusion_model.diffuse_fn(diffusionz, t)      #[B,1,80,T]   # [B, T_s, 80]
 
-                # print("x_t",x_t.shape)
+#                 # print("x_t",x_t.shape)
 
-                # Predict x_{start}
-                x_0_pred = denoise_model(x_t, t.reshape(-1,1), cond)  #[B,1,80,T]
-                # print("x_0_pred",x_0_pred.shape)
+#                 # Predict x_{start}
+#                 x_0_pred = denoise_model(x_t, t.reshape(-1,1), cond)  #[B,1,80,T]
+#                 # print("x_0_pred",x_0_pred.shape)
 
-                loss_l1 = loss_f(x_0_pred,input)
-                loss_final=loss_l1+0.0005*loss_pitch
-                sumloss=sumloss+loss_final
+#                 loss_l1 = loss_f(x_0_pred,input)
+#                 loss_final=loss_l1+0.0005*loss_pitch
+#                 sumloss=sumloss+loss_final
 
-                optim.zero_grad()  ## 梯度清空
-                loss_final.backward() ##  计算梯度
-                optim.step()  ##  更新参数
+#                 optim.zero_grad()  ## 梯度清空
+#                 loss_final.backward() ##  计算梯度
+#                 optim.step()  ##  更新参数
 
-                if(traini%5==0):
-                    loss_d = {}
-                    loss_d["epoch"] = traini
-                    loss_d["step"] = j
-                    loss_d["l1_loss"] = loss_final.item()
-                    loss_d["mel"]=loss_l1.item()
-                    loss_d["pitch"]=loss_pitch.item()
-                    logging.info("*****专业歌曲损失%s*****",loss_d)
+#                 if(traini%5==0):
+#                     loss_d = {}
+#                     loss_d["epoch"] = traini
+#                     loss_d["step"] = j
+#                     loss_d["l1_loss"] = loss_final.item()
+#                     loss_d["mel"]=loss_l1.item()
+#                     loss_d["pitch"]=loss_pitch.item()
+#                     logging.info("*****专业歌曲损失%s*****",loss_d)
 
-            logging.info("*****第%d次epoch第%d次step的损失为%f*****",traini,j,sumloss)
+#             logging.info("*****第%d次epoch第%d次step的损失为%f*****",traini,j,sumloss)
 
 
         #推理阶段
