@@ -2,8 +2,7 @@
 Author: anoymous
 
 institution: anoymous
-
-IJCAI 2023 Main conference
+Interspeech 2023 Main conference
 
 
 <div align="center">
@@ -12,7 +11,7 @@ IJCAI 2023 Main conference
 
 <p align="center">:construction: :pick: :hammer_and_wrench: :construction_worker:</p>
 
-This repository is the official PyTorch implementation of our IJCAI-2023 paper. Now, we release the codes for Generator and condition based Diffusion, Pitch Predictor, Mel-Spectrogram Denosier in our paper. Please wait for dataset(DATASVB) and Expression Enhancer. 
+This repository is the official PyTorch implementation of our interspeech-2023 paper. Now, we release the codes for Generator and condition based Diffusion, Pitch Predictor, Mel-Spectrogram Denosier in our paper. Please wait for dataset(DATASVB) and Expression Enhancer. 
   
 ```
 condition.py involves the process of training and inference.
