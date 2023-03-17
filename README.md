@@ -22,6 +22,7 @@ net.py involves Pitch Predictor, Mel-Spectrogram Denosier.
 
 
 :rocket: **News**: 
+ -   March.1, 2023: We submitted DiffBeautifier to InterSpeech2023.
  - January.18, 2023: We submitted DiffBeautifier to IJCAI2023.
 
 ## Dataset (DiffBeautifier-DATASVB) Acquirement
